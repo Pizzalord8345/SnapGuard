@@ -21,8 +21,8 @@ A user-friendly Linux snapshot management tool for BTRFS and OverlayFS.
 sudo apt-get install python3-gi python3-gi-cairo gir1.2-gtk-3.0 btrfs-progs
 
 # Clone repository
-git clone https://github.com/yourusername/bettersync.git
-cd bettersync
+git clone https://github.com/Pizzalord8345/SnapGuard.git
+cd snapguard
 
 # Install Python dependencies
 pip install -r requirements.txt
