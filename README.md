@@ -40,4 +40,4 @@ python3 src/main.py
 
 ## License
 
-GPL-3.0
+Apache-2.0 license
