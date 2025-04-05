@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"  # if a requirements.txt exists in the root-directory
+    schedule:
+      interval: "weekly"  # or "daily", "monthly"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-type: "all"
+    commit-message:
+      prefix: "deps"
