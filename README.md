@@ -14,7 +14,7 @@ A user-friendly Linux snapshot management tool for BTRFS and OverlayFS.
 - Intuitive, minimalist user interface
 - Overview of snapshot storage usage
 
-## planned Features & Improvments
+## planned Features & Improvements
 
 - Automatic Snapshots on Low Disk Space: SnapGuard will automatically create snapshots when available disk space falls below a critical threshold to prevent system instability.
 - Notification System: Users will receive alerts when disk space is low or when a snapshot fails, allowing them to take timely action.
