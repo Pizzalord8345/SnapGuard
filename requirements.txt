@@ -2,5 +2,5 @@ PyGObject>=3.42.0
 pycairo>=1.16.0
 psutil>=5.8.0
 dbus-python>=1.3.2
-python-systemd>=235
+python-systemd>=0.0.9
 cryptography>=41.0.0
