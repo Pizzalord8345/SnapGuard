@@ -129,7 +129,7 @@ pip install -r requirements.txt
 
 ## License
 
-GNU General Public License v3.0
+Apache 2.0 License
 
 ## Contributing
 
