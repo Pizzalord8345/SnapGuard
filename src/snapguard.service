@@ -1,0 +1,15 @@
+[Unit]
+Description=SnapGuard Automatic Snapshot Service
+Documentation=https://github.com/yourusername/snapguard
+After=network.target
+
+[Service]
+Type=simple
+User=%USER%
+Group=%USER%
+ExecStart=/usr/bin/python3 /usr/share/snapguard/src/snapshot_auto.py
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target 

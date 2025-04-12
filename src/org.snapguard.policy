@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+        "http://www.freedesktop.org/standards/PolicyKit/1.0/policyconfig.dtd">
+<policyconfig>
+    <vendor>SnapGuard</vendor>
+    <vendor_url>https://github.com/yourusername/snapguard</vendor_url>
+
+    <action id="org.snapguard.create-snapshot">
+        <description>Create a system snapshot</description>
+        <message>Authentication is required to create a system snapshot</message>
+        <defaults>
+            <allow_any>auth_admin</allow_any>
+            <allow_inactive>auth_admin</allow_inactive>
+            <allow_active>auth_admin</allow_active>
+        </defaults>
+    </action>
+
+    <action id="org.snapguard.delete-snapshot">
+        <description>Delete a system snapshot</description>
+        <message>Authentication is required to delete a system snapshot</message>
+        <defaults>
+            <allow_any>auth_admin</allow_any>
+            <allow_inactive>auth_admin</allow_inactive>
+            <allow_active>auth_admin</allow_active>
+        </defaults>
+    </action>
+
+    <action id="org.snapguard.restore-snapshot">
+        <description>Restore a system snapshot</description>
+        <message>Authentication is required to restore a system snapshot</message>
+        <defaults>
+            <allow_any>auth_admin</allow_any>
+            <allow_inactive>auth_admin</allow_inactive>
+            <allow_active>auth_admin</allow_active>
+        </defaults>
+    </action>
+</policyconfig> 

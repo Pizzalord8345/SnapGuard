@@ -1,0 +1,70 @@
+{
+    "snapshot": {
+        "default_location": "/.snapshots",
+        "max_snapshots": 10,
+        "schedule": {
+            "type": "daily",
+            "time": "02:00"
+        },
+        "subvolumes": [
+            {
+                "path": "/",
+                "name": "root",
+                "enabled": true
+            },
+            {
+                "path": "/home",
+                "name": "home",
+                "enabled": true
+            }
+        ],
+        "retention": {
+            "daily": 7,
+            "weekly": 4,
+            "monthly": 12
+        }
+    },
+    "security": {
+        "encryption": {
+            "enabled": false,
+            "algorithm": "aes-256-gcm",
+            "key_file": "/etc/snapguard/encryption.key"
+        },
+        "signing": {
+            "enabled": false,
+            "key_file": "/etc/snapguard/signing.key"
+        },
+        "audit_log": "/var/log/snapguard/audit.log"
+    },
+    "notifications": {
+        "enabled": true,
+        "on_success": true,
+        "on_failure": true,
+        "on_cleanup": true,
+        "email": {
+            "enabled": false,
+            "from": "snapguard@example.com",
+            "to": "admin@example.com",
+            "smtp_server": "smtp.example.com",
+            "smtp_port": 587,
+            "use_tls": true,
+            "username": "",
+            "password": ""
+        }
+    },
+    "logging": {
+        "enabled": true,
+        "level": "INFO",
+        "journald": true,
+        "file": "/var/log/snapguard/snapguard.log"
+    },
+    "backup": {
+        "enabled": false,
+        "location": "/mnt/backup",
+        "schedule": {
+            "type": "weekly",
+            "day": "sunday",
+            "time": "03:00"
+        }
+    }
+} 

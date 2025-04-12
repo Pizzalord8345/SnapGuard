@@ -1,0 +1,12 @@
+[Unit]
+Description=SnapGuard Automatic Snapshot Timer
+Documentation=https://github.com/yourusername/snapguard
+Requires=snapguard.service
+
+[Timer]
+Unit=snapguard.service
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target 
