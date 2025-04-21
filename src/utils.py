@@ -3,11 +3,11 @@
 import logging
 import os
 import subprocess
-from pathlib import Path
+from pathlib import Path  # This is a standard library import
 
-import gi
-import psutil
-
+# Blank line to separate standard library imports from third-party imports
+import psutil  # Third-party import
+import gi  # Third-party import
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
