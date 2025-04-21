@@ -31,22 +31,22 @@ def create_folder_chooser_dialog(parent, title):
     )
     return dialog
 
-def initialize_panel(self, orientation=Gtk.Orientation.VERTICAL, spacing=6, 
+def initialize_panel(panel_instance, orientation=Gtk.Orientation.VERTICAL, spacing=6, 
                     snapshot_manager=None, parent_window=None):
     """
     Initialize common panel properties.
     
     Args:
-        self: Panel instance
+        panel_instance: Panel instance to initialize
         orientation: Panel orientation
         spacing: Spacing between elements
         snapshot_manager: Snapshot manager instance
         parent_window: Parent window
     """
-    super(self.__class__, self).__init__(orientation=orientation, spacing=spacing)
-    self.logger = logging.getLogger(__name__)
-    self.snapshot_manager = snapshot_manager
-    self.parent_window = parent_window
+    super(panel_instance.__class__, panel_instance).__init__(orientation=orientation, spacing=spacing)
+    panel_instance.logger = logging.getLogger(__name__)
+    panel_instance.snapshot_manager = snapshot_manager
+    panel_instance.parent_window = parent_window
     
     # Create UI elements
-    self.create_widgets()
+    panel_instance.create_widgets()
