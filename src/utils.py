@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-import os
-import sys
 import logging
+import os
 import subprocess
-import psutil
 from pathlib import Path
+
 import gi
+import psutil
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk
 
 def setup_logging():
     """Sets up logging for the application."""
