@@ -1,140 +1,125 @@
-# SnapGuard
+# SnapGuard 🛡️
 
-🛡️ A modern, secure, and user-friendly snapshot & backup manager for Linux using BtrFS and OverlayFS – a permissive alternative to Snapper.
+**A modern, secure, and user-friendly snapshot & backup manager for Linux using BtrFS and OverlayFS – a permissive alternative to Snapper.**
+
+![License](https://img.shields.io/github/license/Pizzalord8345/SnapGuard)
+![Issues](https://img.shields.io/github/issues/Pizzalord8345/SnapGuard)
+![Last Commit](https://img.shields.io/github/last-commit/Pizzalord8345/SnapGuard)
+![Stars](https://img.shields.io/github/stars/Pizzalord8345/SnapGuard?style=social)
+
+---
+
+<p align="center">
+  <img src="docs/snapguard-demo.gif" width="700" alt="SnapGuard Demo" />
+</p>
+
+---
 
 ## Why SnapGuard?
 
-SnapGuard offers a powerful, secure, and GUI-based alternative to Snapper. With integrated encryption, digital signing, Polkit support, and intelligent snapshot retention, it's designed for power users and Linux enthusiasts who want full control over their backup strategy – without sacrificing usability.
+SnapGuard is built for power users and Linux enthusiasts who want secure and transparent control over their BtrFS/OverlayFS snapshots. Unlike Snapper, SnapGuard features an intuitive GUI, fine-grained encryption, Polkit access control, and flexible snapshot retention strategies.
 
-## Main Features
+## 🔐 Main Features
 
 ### Security
-- **File-level encryption**: Each file is individually encrypted with AES-256-GCM
-- **Secure key management**: 
-  - Key derivation with PBKDF2 (100,000 iterations)
-  - Separate keys for encryption and signing
-  - Secure key storage in protected directories
-- **Digital signing**: 
-  - HMAC-SHA256 signatures for each file
-  - Integrity verification before export
-  - Snapshot verification during restoration
+- AES-256-GCM file-level encryption
+- PBKDF2 (100k iterations) key derivation
+- HMAC-SHA256 file signing
+- Secure key storage & separation of encryption/signing keys
+- Integrity checks before export and during restoration
 
 ### Snapshot Management
-- **Intelligent retention**:
-  - Differentiated retention policies (daily, weekly, monthly)
-  - Automatic selection of important snapshots
-  - Configurable retention periods
-- **Multiple subvolumes**: 
-  - Support for multiple Btrfs subvolumes
-  - Individual configuration per subvolume
-  - Parallel snapshot creation
+- Daily/weekly/monthly retention policies
+- Configurable per subvolume
+- Parallel snapshot creation for speed
 
 ### Backup and Export
-- **Secure backups**:
-  - Overall backup checksum (SHA-256)
-  - Integrity verification before export
-  - Complete metadata documentation
-- **Flexible export options**:
-  - Support for various target media
-  - Preservation of all security features
-  - Automatic verification after export
+- SHA-256 checksums of complete backups
+- Metadata preservation
+- Target media flexibility
+- Auto verification after export
 
 ### User Interface
-- **GTK-based GUI**:
-  - Clear overview of all snapshots
-  - Easy management of retention policies
-  - Security settings configuration
-- **Systemd integration**:
-  - Automatic snapshot creation
-  - Configurable schedules
-  - Reliable operation as system service
+- GTK-based GUI
+- Systemd integration
+- Configure security & retention visually
 
-### Monitoring and Logging
-- **Detailed audit logging**:
-  - Logging of all operations
-  - Success and error logs
-  - Metrics and statistics
-- **Notifications**:
-  - Desktop notifications
-  - Email notifications (optional)
-  - System logging
+### Monitoring & Logging
+- Audit log of all actions
+- Success & error log separation
+- Optional desktop and email notifications
 
-## Installation
+---
 
-See [INSTALL.md](INSTALL.md) for detailed installation instructions.
+## 📦 Installation
 
-## Configuration
+See [INSTALL.md](INSTALL.md) for setup instructions.
 
-Configuration is done via `config.json`. Important settings:
+---
+
+## ⚙️ Configuration (config.json)
 
 ```json
 {
-    "snapshot": {
-        "subvolumes": [
-            {
-                "path": "/",
-                "name": "root",
-                "enabled": true
-            }
-        ],
-        "retention": {
-            "daily": 7,
-            "weekly": 4,
-            "monthly": 12
-        }
-    },
-    "security": {
-        "encryption": {
-            "enabled": true,
-            "algorithm": "aes-256-gcm"
-        },
-        "signing": {
-            "enabled": true
-        }
+  "snapshot": {
+    "subvolumes": [
+      {
+        "path": "/",
+        "name": "root",
+        "enabled": true
+      }
+    ],
+    "retention": {
+      "daily": 7,
+      "weekly": 4,
+      "monthly": 12
     }
+  },
+  "security": {
+    "encryption": {
+      "enabled": true,
+      "algorithm": "aes-256-gcm"
+    },
+    "signing": {
+      "enabled": true
+    }
+  }
 }
 ```
 
-## Security Features
+---
 
-### Encryption
-- AES-256-GCM for maximum security
-- Individual file encryption
-- Encryption metadata
-- Secure key derivation with PBKDF2
-
-### Integrity
-- HMAC-SHA256 signatures
-- Verification before export
-- Overall backup checksum
-- Automatic integrity verification
-
-### Access Control
-- Polkit integration
-- No direct root access
-- Secure permission management
-- Audit logging of all operations
-
-## Development
+## 🛠️ Development
 
 ### Dependencies
 - Python 3.6+
 - GTK 3.0
-- Btrfs
+- BtrFS
 - Systemd
 - Polkit
 
-### Development Environment
+### Setup
 ```bash
-git clone https://github.com/yourusername/snapguard.git
-cd snapguard
+git clone https://github.com/Pizzalord8345/SnapGuard.git
+cd SnapGuard
 pip install -r requirements.txt
 ```
 
-## License
+---
 
-Apache 2.0 License
+## 🤝 Contributing
+We welcome contributors! See [CONTRIBUTING.md](CONTRIBUTING.md) for more info.
 
-## Contributing
+---
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on the contribution process.
+## 📄 License
+Apache 2.0 License – free for personal and commercial use.
+
+---
+
+<!-- SEO -->
+<!--
+keywords: snapguard, linux backup manager, btrfs snapshots, snapper alternative, overlayfs snapshot, gtk backup gui, encrypted snapshots, polkit backup tool, secure backup linux
+-->
+
+
