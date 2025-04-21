@@ -1,6 +1,10 @@
 # SnapGuard
 
-An advanced snapshot manager for Linux systems with Btrfs support.
+🛡️ A modern, secure, and user-friendly snapshot & backup manager for Linux using BtrFS and OverlayFS – a permissive alternative to Snapper.
+
+## Why SnapGuard?
+
+SnapGuard offers a powerful, secure, and GUI-based alternative to Snapper. With integrated encryption, digital signing, Polkit support, and intelligent snapshot retention, it's designed for power users and Linux enthusiasts who want full control over their backup strategy – without sacrificing usability.
 
 ## Main Features
 
