@@ -1,4 +1,4 @@
-name: "CodeQL Advanced"
+name: "CodeQL Standard"
 
 on:
   push:
@@ -10,42 +10,30 @@ on:
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    name: Analyze CodeQL
+    runs-on: ubuntu-latest  # Oder macos-latest, falls du Swift oder macOS analysieren möchtest
+
     permissions:
       security-events: write
       packages: read
       actions: read
       contents: read
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-        - language: actions
-          build-mode: none
-        - language: python
-          build-mode: none
-        # Hier können weitere Sprachen hinzugefügt werden
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # CodeQL-Initialisierung mit den angepassten Parametern
+    # CodeQL-Initialisierung mit der Standard-Konfiguration
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
-        languages: ${{ matrix.language }}
-        build-mode: ${{ matrix.build-mode }}
+        languages: python  # Hier kannst du die Sprache anpassen (z.B. 'python', 'javascript-typescript' usw.)
 
-    # Standardanalyse durchführen
+    # Durchführung der CodeQL-Analyse
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
-      with:
-        category: "/language:${{matrix.language}}"
-        
-    # Upload der SARIF-Datei automatisch aktivieren
+
+    # Upload der SARIF-Datei für GitHub Code-Scanning
     - name: Upload CodeQL results
       uses: github/codeql-action/upload-sarif@v2
       with:
