@@ -10,6 +10,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib, Pango
 
 from utils import show_error_dialog, show_confirmation_dialog, format_size
+from ui_utils import create_folder_chooser_dialog
 
 class LiveModePanel(Gtk.Box):
     """Panel for managing and using the live mode functionality."""
@@ -340,17 +341,9 @@ Any changes made in Live Mode are stored separately and can be either committed 
         
         dialog.destroy()
     
-    def on_source_browse_clicked(self, button, entry):
+   def on_source_browse_clicked(self, button, entry):
         """Opens a file chooser for selecting the source path."""
-        dialog = Gtk.FileChooserDialog(
-            title="Select Source Path",
-            parent=self.get_toplevel(),
-            action=Gtk.FileChooserAction.SELECT_FOLDER
-        )
-        dialog.add_buttons(
-            Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_OPEN, Gtk.ResponseType.OK
-        )
+        dialog = create_folder_chooser_dialog(self.get_toplevel(), "Select Source Path")
         
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
@@ -360,15 +353,7 @@ Any changes made in Live Mode are stored separately and can be either committed 
     
     def on_mount_browse_clicked(self, button):
         """Opens a file chooser for selecting the mount point."""
-        dialog = Gtk.FileChooserDialog(
-            title="Select Mount Point",
-            parent=self.get_toplevel(),
-            action=Gtk.FileChooserAction.SELECT_FOLDER
-        )
-        dialog.add_buttons(
-            Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-            Gtk.STOCK_OPEN, Gtk.ResponseType.OK
-        )
+        dialog = create_folder_chooser_dialog(self.get_toplevel(), "Select Mount Point")
         
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
