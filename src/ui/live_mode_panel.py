@@ -340,8 +340,8 @@ Any changes made in Live Mode are stored separately and can be either committed 
                 )
         
         dialog.destroy()
-    
-   def on_source_browse_clicked(self, button, entry):
+        
+    def on_source_browse_clicked(self, button, entry):
         """Opens a file chooser for selecting the source path."""
         dialog = create_folder_chooser_dialog(self.get_toplevel(), "Select Source Path")
         
