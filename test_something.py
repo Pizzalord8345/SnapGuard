@@ -1,8 +1,8 @@
 """
-Test module for BetterSync application.
+Test module for Snapguard application.
 
 This module contains unit tests to verify the functionality
-of various components in the BetterSync application.
+of various components in the Snapguard application.
 """
 
 def test_example():
