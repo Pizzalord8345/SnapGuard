@@ -11,8 +11,8 @@
 ## Installation
 
 ### Clone the repository:
-   git clone https://github.com/yourusername/snapguard.git
-   cd snapguard
+   git clone https://github.com/Pizzalord8345/SnapGuard.git
+cd snapguard
    
 ### Install the Python dependencies:
 pip install -r requirements.txt
