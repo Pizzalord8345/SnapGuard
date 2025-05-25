@@ -16,7 +16,6 @@ SnapGuard is a Linux snapshot tool that requires superuser permissions. To ensur
 
 #### 🔹 How to help?  
 - Clone the repository:  
-  ```bash
   git clone https://github.com/Pizzalord8345/SnapGuard.git
   cd SnapGuard
   
