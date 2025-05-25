@@ -1,44 +1,44 @@
 # SnapGuard Installation
 
-## Voraussetzungen
+## Preconditions
 
-- Python 3.6 oder höher
+- Python 3.6 or later
 - GTK 3.0
 - Systemd
-- Btrfs-Dateisystem
+- Btrfs-Filesystem
 - Polkit
 
 ## Installation
 
-1. Klonen Sie das Repository:
+1. clone the Repository:
 ```bash
 git clone https://github.com/yourusername/snapguard.git
 cd snapguard
 ```
 
-2. Installieren Sie die Python-Abhängigkeiten:
+2. Install the Python-Dependencys:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Installieren Sie die Systemd-Service- und Timer-Dateien:
+3. Install the Systemd-Service- und Timer-Files:
 ```bash
 sudo cp src/snapguard.service /etc/systemd/system/
 sudo cp src/snapguard.timer /etc/systemd/system/
 ```
 
-4. Installieren Sie die Polkit-Richtlinien:
+4. Install the Polkit-Guidelines:
 ```bash
 sudo cp src/org.snapguard.policy /usr/share/polkit-1/actions/
 ```
 
-5. Erstellen Sie das Snapshot-Verzeichnis:
+5. Create the Snapshot-Directory:
 ```bash
 sudo mkdir -p /.snapshots
 sudo chown $USER:$USER /.snapshots
 ```
 
-6. Aktivieren und starten Sie den Service:
+6. Activate and start the Service:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable snapguard.timer
@@ -47,19 +47,18 @@ sudo systemctl start snapguard.timer
 
 ## Verwendung
 
-Starten Sie die GUI mit:
+Start the Graphical user Interface:
 ```bash
 python3 src/gui.py
 ```
 
-## Konfiguration
-
-Die Standardkonfiguration befindet sich in `src/config.json`. Sie können diese Datei anpassen, um:
-- Das Standard-Snapshot-Verzeichnis zu ändern
-- Die maximale Anzahl von Snapshots festzulegen
-- Den Zeitplan für automatische Snapshots zu konfigurieren
-- Benachrichtigungseinstellungen anzupassen
-
+## Configuration
+ The default configuration is in `src/config.json`. You can customize this file to: 
+ - Change the default snapshot directory
+ - - Set the maximum number of snapshots
+   - - Configure the schedule for automatic snapshots
+     - - Adjust notification settings
+       - 
 ## Fehlerbehebung
 
 1. Überprüfen Sie den Service-Status:
