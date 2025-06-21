@@ -13,10 +13,10 @@ from gi.repository import Gtk
 
 def setup_logging():
     """Sets up logging for the application."""
-    log_dir = Path.home() / ".local" / "share" / "bettersync" / "logs"
+    log_dir = Path.home() / ".local" / "share" / "snapguard" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     
-    log_file = log_dir / "bettersync.log"
+    log_file = log_dir / "snapguard.log"
     
     logging.basicConfig(
         level=logging.INFO,
@@ -43,7 +43,7 @@ def run_command(cmd, check=True, capture_output=True):
         return result
     except subprocess.CalledProcessError as e:
         logging.error(f"Error executing command: {e}")
-        return e
+        raise e
 
 def is_btrfs_available():
     """Checks if Btrfs is available on the system."""
