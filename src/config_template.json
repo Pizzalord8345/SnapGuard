@@ -1,0 +1,133 @@
+{
+  "snapshot": {
+    "subvolumes": [
+      {
+        "path": "/",
+        "name": "root",
+        "enabled": true
+      }
+    ],
+    "retention": {
+      "daily": 7,
+      "weekly": 4,
+      "monthly": 12
+    },
+    "default_location": "/var/lib/snapguard/snapshots",
+    "schedule": {
+      "type": "daily",
+      "time": "03:00"
+    }
+  },
+  "security": {
+    "encryption": {
+      "enabled": true,
+      "algorithm": "aes-256-gcm",
+      "key_file": "/etc/snapguard/keys/encryption.key",
+      "selective_encryption": false,
+      "sensitive_patterns": [
+        "*.key",
+        "*.pem",
+        "*.conf",
+        "*/passwords/*"
+      ]
+    },
+    "signing": {
+      "enabled": true,
+      "key_file": "/etc/snapguard/keys/signing.key"
+    },
+    "key_directory": "/etc/snapguard/keys",
+    "mfa_directory": "/etc/snapguard/mfa",
+    "audit_log": "/var/log/snapguard/audit.log",
+    "key_rotation": {
+      "enabled": true,
+      "max_age_days": 90,
+      "auto_rotate": true
+    },
+    "mfa_policy": {
+      "enabled": true,
+      "required_operations": [
+        "restore_snapshot",
+        "delete_snapshot",
+        "export_backup",
+        "key_rotation"
+      ]
+    },
+    "sensitive_metadata_fields": [
+      "description",
+      "user_data",
+      "tags"
+    ]
+  },
+  "backup": {
+    "enabled": true,
+    "compression": {
+      "enabled": true,
+      "algorithm": "zstd",
+      "level": 3
+    }
+  },
+  "storage": {
+    "deduplication": {
+      "enabled": true,
+      "method": "file",
+      "block_size": 4096
+    },
+    "deduplication_directory": "/var/lib/snapguard/dedup",
+    "compression": {
+      "enabled": true,
+      "algorithm": "zstd",
+      "level": 3
+    },
+    "io_throttling": {
+      "enabled": true,
+      "max_read_mbps": 100,
+      "max_write_mbps": 50
+    }
+  },
+  "recovery": {
+    "bootable_recovery": {
+      "enabled": true,
+      "kernel_path": "/boot/vmlinuz",
+      "initrd_path": "/boot/initrd.img"
+    },
+    "time_machine": {
+      "enabled": true,
+      "index_path": "/var/lib/snapguard/time_machine_index.json"
+    }
+  },
+  "monitoring": {
+    "enabled": true,
+    "stats_collection_interval": 3600,
+    "health_check_interval": 86400,
+    "report_email": "admin@example.com",
+    "report_schedule": "weekly"
+  },
+  "collaboration": {
+    "enabled": false,
+    "users": [],
+    "default_permission": "read"
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO",
+    "journald": true
+  },
+  "notifications": {
+    "enabled": true,
+    "email": {
+      "enabled": false,
+      "smtp_server": "smtp.example.com",
+      "smtp_port": 587,
+      "use_tls": true,
+      "username": "user@example.com",
+      "password": "",
+      "from": "snapguard@example.com",
+      "to": "admin@example.com"
+    }
+  },
+  "ui": {
+    "theme": "system",
+    "dashboard_enabled": true,
+    "visualization_enabled": true
+  }
+}

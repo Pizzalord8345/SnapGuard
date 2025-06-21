@@ -59,4 +59,3 @@ pkaction --verbose | grep snapguard
 ## Security
 SnapGuard uses Polkit for privileged operations
 Make sure only trusted users have access to the GUI
-
