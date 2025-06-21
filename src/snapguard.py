@@ -30,15 +30,26 @@ class SnapGuard:
     def _setup_encryption(self):
         if self.config['security']['encryption']['enabled']:
             key_file = Path(self.config['security']['encryption']['key_file'])
+            salt_file = key_file.with_suffix('.salt')
             if not key_file.exists():
                 self._generate_encryption_key()
+
+            if salt_file.exists():
+                with open(salt_file, 'rb') as sf:
+                    salt = sf.read()
+            else:
+                salt = os.urandom(16)
+                with open(salt_file, 'wb') as sf:
+                    sf.write(salt)
+                os.chmod(salt_file, 0o600)
+
             with open(key_file, 'rb') as f:
                 key_data = f.read()
                 # derive the key with PBKDF2
                 kdf = PBKDF2HMAC(
                     algorithm=hashes.SHA256(),
                     length=32,
-                    salt=b'snapguard_salt',
+                    salt=salt,
                     iterations=100000,
                 )
                 self.encryption_key = base64.urlsafe_b64encode(kdf.derive(key_data))
@@ -57,6 +68,7 @@ class SnapGuard:
         key_file.parent.mkdir(parents=True, exist_ok=True)
         with open(key_file, 'wb') as f:
             f.write(key)
+        os.chmod(key_file, 0o600)
 
     def _generate_signing_key(self):
         key = os.urandom(32)
@@ -64,6 +76,7 @@ class SnapGuard:
         key_file.parent.mkdir(parents=True, exist_ok=True)
         with open(key_file, 'wb') as f:
             f.write(key)
+        os.chmod(key_file, 0o600)
 
     def _setup_audit_logging(self):
         audit_log = Path(self.config['security']['audit_log'])
@@ -111,6 +124,64 @@ class SnapGuard:
             return True
         except Exception as e:
             logging.error(f"Encryption failed: {e}")
+            return False
+
+    def _decrypt_snapshot(self, snapshot_path: str) -> bool:
+        if not self.config['security']['encryption']['enabled']:
+            logging.info("Encryption is not enabled. No decryption needed.")
+            return True
+
+        if not hasattr(self, 'encryption_key'):
+            logging.error("Encryption key not available. Decryption cannot proceed.")
+            return False
+
+        try:
+            f = Fernet(self.encryption_key)
+            snapshot_dir = Path(snapshot_path)
+
+            logging.info(f"Starting decryption for snapshot: {snapshot_path}")
+
+            for file_path in snapshot_dir.rglob('*'):
+                if file_path.is_file() and file_path.name != '.encryption_metadata.json' and file_path.name != '.signature_metadata.json':
+                    try:
+                        with open(file_path, 'rb') as file:
+                            encrypted_data = file.read()
+
+                        # Skip empty files as they might not be valid Fernet tokens
+                        if not encrypted_data:
+                            logging.debug(f"Skipping empty file: {file_path}")
+                            continue
+
+                        decrypted_data = f.decrypt(encrypted_data)
+                        with open(file_path, 'wb') as file:
+                            file.write(decrypted_data)
+                        logging.debug(f"Successfully decrypted file: {file_path}")
+                    except FileNotFoundError:
+                        logging.warning(f"File not found during decryption (possibly already processed or a symlink issue): {file_path}")
+                        # Depending on strictness, could return False here
+                        continue # Or simply log and continue with other files
+                    except (Fernet.InvalidToken, TypeError) as token_error: # TypeError for non-bytes token
+                        logging.error(f"Failed to decrypt file {file_path} due to invalid token or data: {token_error}")
+                        return False # If any file fails, decryption is considered failed
+                    except Exception as e:
+                        logging.error(f"An unexpected error occurred while decrypting file {file_path}: {e}")
+                        return False
+
+            # Attempt to remove the encryption metadata file
+            metadata_file = snapshot_dir / '.encryption_metadata.json'
+            if metadata_file.exists():
+                try:
+                    metadata_file.unlink()
+                    logging.info(f"Successfully removed encryption metadata file: {metadata_file}")
+                except Exception as e:
+                    logging.warning(f"Failed to remove encryption metadata file {metadata_file}: {e}")
+            else:
+                logging.info("No encryption metadata file found to remove.")
+
+            logging.info(f"Decryption completed successfully for snapshot: {snapshot_path}")
+            return True
+        except Exception as e:
+            logging.error(f"Decryption process failed for snapshot {snapshot_path}: {e}", exc_info=True)
             return False
 
     def _sign_snapshot(self, snapshot_path: str) -> bool:
@@ -222,50 +293,118 @@ class SnapGuard:
             logging.error(f"Polkit authorization failed: {e}")
             return False
 
+    def _generate_snapshot_name(self, subvolume_name: str, timestamp: str, description: Optional[str]) -> str:
+        snapshot_name = f"snapshot_{subvolume_name}_{timestamp}"
+        if description:
+            snapshot_name += f"_{description}"
+        return snapshot_name
+
+    def _execute_btrfs_snapshot_command(self, subvolume_path: str, snapshot_target_path: str) -> bool:
+        cmd = ['btrfs', 'subvolume', 'snapshot', subvolume_path, snapshot_target_path]
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            logging.info(f"Btrfs snapshot command successful: {' '.join(cmd)}")
+            return True
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Failed to execute btrfs snapshot command: {' '.join(cmd)}. Error: {e.stderr}")
+            return False
+
     def create_snapshot(self, description: Optional[str] = None) -> bool:
         if not self._check_polkit_auth('org.snapguard.create-snapshot'):
+            self._audit_log("create_snapshot_auth_failed", False, "Polkit authorization failed")
             return False
 
         try:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            success = True
+            overall_success = True
 
-            for subvol in self.config['snapshot']['subvolumes']:
-                if not subvol['enabled']:
+            for subvol_config in self.config['snapshot']['subvolumes']:
+                if not subvol_config['enabled']:
+                    logging.info(f"Skipping disabled subvolume: {subvol_config['name']}")
                     continue
 
-                snapshot_name = f"snapshot_{subvol['name']}_{timestamp}"
-                if description:
-                    snapshot_name += f"_{description}"
+                snapshot_name = self._generate_snapshot_name(subvol_config['name'], timestamp, description)
+                snapshot_target_path = f"{self.config['snapshot']['default_location']}/{snapshot_name}"
 
-                snapshot_path = f"{self.config['snapshot']['default_location']}/{snapshot_name}"
-                cmd = ['btrfs', 'subvolume', 'snapshot', subvol['path'], snapshot_path]
-                
-                result = subprocess.run(cmd, capture_output=True, text=True)
-                if result.returncode == 0:
-                    if not self._encrypt_snapshot(snapshot_path):
-                        success = False
-                        continue
-                    if not self._sign_snapshot(snapshot_path):
-                        success = False
-                        continue
-                    logging.info(f"Snapshot created successfully: {snapshot_name}")
+                logging.info(f"Attempting to create snapshot for subvolume: {subvol_config['name']} at {snapshot_target_path}")
+
+                if self._execute_btrfs_snapshot_command(subvol_config['path'], snapshot_target_path):
+                    snapshot_created_successfully = True
+                    if self.config['security']['encryption']['enabled']:
+                        logging.info(f"Encrypting snapshot: {snapshot_name}")
+                        if not self._encrypt_snapshot(snapshot_target_path):
+                            logging.error(f"Failed to encrypt snapshot: {snapshot_name}")
+                            snapshot_created_successfully = False
+                            # Decide if we should delete the partially failed snapshot
+                            # For now, we'll leave it and mark overall_success as False
+
+                    if snapshot_created_successfully and self.config['security']['signing']['enabled']:
+                        logging.info(f"Signing snapshot: {snapshot_name}")
+                        if not self._sign_snapshot(snapshot_target_path):
+                            logging.error(f"Failed to sign snapshot: {snapshot_name}")
+                            snapshot_created_successfully = False
+                            # Decide if we should delete the partially failed snapshot
+
+                    if snapshot_created_successfully:
+                        logging.info(f"Snapshot created and processed successfully: {snapshot_name}")
+                    else:
+                        overall_success = False # Mark overall success as false if any step failed
+                        # Consider what to do with a snapshot that was created but failed encryption/signing
+                        # For now, it remains, but it's logged as an error.
                 else:
-                    logging.error(f"Failed to create snapshot: {result.stderr}")
-                    success = False
+                    # btrfs command itself failed
+                    logging.error(f"Snapshot creation failed for subvolume: {subvol_config['name']}")
+                    overall_success = False
 
-            if success:
-                self._send_notification("Snapshot created", "All snapshots were created successfully")
-                self._audit_log("create_snapshot", True, f"Description: {description}")
+            if overall_success:
+                self._send_notification("Snapshot created", "All snapshots were created successfully.")
+                self._audit_log("create_snapshot", True, f"Description: {description}. All subvolumes processed successfully.")
             else:
-                self._send_notification("Snapshot failed", "Some snapshots failed to create")
-                self._audit_log("create_snapshot", False, f"Description: {description}")
+                self._send_notification("Snapshot failed", "One or more snapshots failed to create or process correctly. Check logs.")
+                self._audit_log("create_snapshot", False, f"Description: {description}. Some subvolumes failed.")
 
-            return success
+            return overall_success
         except Exception as e:
-            logging.error(f"Error creating snapshot: {e}")
-            self._audit_log("create_snapshot", False, str(e))
+            logging.error(f"An unexpected error occurred during create_snapshot: {e}", exc_info=True)
+            self._audit_log("create_snapshot_exception", False, str(e))
             return False
+
+    def decrypt_snapshot_for_restore(self, snapshot_path: str) -> bool:
+        """
+        Verifies and then decrypts a snapshot in place, preparing it for restoration.
+        """
+        logging.info(f"Attempting to decrypt snapshot for restore: {snapshot_path}")
+
+        if not Path(snapshot_path).exists():
+            logging.error(f"Snapshot path does not exist: {snapshot_path}")
+            self._audit_log("decrypt_snapshot_for_restore", False, f"Snapshot not found: {snapshot_path}")
+            return False
+
+        if self.config['security']['signing']['enabled']:
+            logging.info(f"Verifying snapshot integrity before decryption: {snapshot_path}")
+            if not self.verify_snapshot(snapshot_path):
+                logging.error(f"Snapshot verification failed for: {snapshot_path}. Decryption aborted.")
+                self._audit_log("decrypt_snapshot_for_restore", False, f"Verification failed: {snapshot_path}")
+                return False
+            logging.info(f"Snapshot verification successful: {snapshot_path}")
+        else:
+            logging.warning("Signing is not enabled. Skipping snapshot verification before decryption.")
+
+        if not self.config['security']['encryption']['enabled']:
+            logging.info("Encryption is not enabled. No decryption needed for restore.")
+            self._audit_log("decrypt_snapshot_for_restore", True, f"No decryption needed (encryption disabled): {snapshot_path}")
+            return True
+
+        decrypt_success = self._decrypt_snapshot(snapshot_path)
+
+        if decrypt_success:
+            logging.info(f"Snapshot decrypted successfully for restore: {snapshot_path}")
+            self._audit_log("decrypt_snapshot_for_restore", True, f"Successfully decrypted: {snapshot_path}")
+        else:
+            logging.error(f"Snapshot decryption failed for restore: {snapshot_path}")
+            self._audit_log("decrypt_snapshot_for_restore", False, f"Decryption failed: {snapshot_path}")
+
+        return decrypt_success
 
     def list_snapshots(self) -> List[Dict]:
         try:

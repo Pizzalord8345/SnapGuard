@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -61,7 +62,7 @@ class SnapshotManager:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.config_dir = Path.home() / ".config" / "bettersync"
+        self.config_dir = Path.home() / ".config" / "snapguard"
         self.config_dir.mkdir(parents=True, exist_ok=True)
         
         self.snapshots_file = self.config_dir / "snapshots.json"
@@ -111,7 +112,7 @@ class SnapshotManager:
                 'overlay_mount_point': '/mnt/overlay',
                 'auto_snapshot_enabled': True,
                 'max_snapshots': 10,
-                'snapshot_directory': '/var/lib/bettersync/snapshots'
+                'snapshot_directory': '/var/lib/snapguard/snapshots'
             }
             self.save_config()
             return
@@ -459,13 +460,13 @@ class SnapshotManager:
             
             # Create or remove systemd service and timer
             service_dir = Path("/etc/systemd/system")
-            service_file = service_dir / "bettersync-auto-snapshot.service"
-            timer_file = service_dir / "bettersync-auto-snapshot.timer"
+            service_file = service_dir / "snapguard-auto-snapshot.service"
+            timer_file = service_dir / "snapguard-auto-snapshot.timer"
             
             if enabled:
                 # Create service file
                 service_content = f"""[Unit]
-Description=BetterSync Automatic Snapshot Service
+Description=SnapGuard Automatic Snapshot Service
 After=network.target
 
 [Service]
@@ -478,7 +479,7 @@ WantedBy=multi-user.target
 """
                 # Create timer file
                 timer_content = """[Unit]
-Description=BetterSync Automatic Snapshot Timer
+Description=SnapGuard Automatic Snapshot Timer
 
 [Timer]
 OnCalendar=daily
@@ -489,9 +490,9 @@ WantedBy=timers.target
 """
                 # Create hook for apt/dnf
                 apt_hook_dir = Path("/etc/apt/apt.conf.d")
-                apt_hook_file = apt_hook_dir / "99-bettersync-snapshot"
+                apt_hook_file = apt_hook_dir / "99-snapguard-snapshot"
                 
-                apt_hook_content = f"""// BetterSync: Automatic snapshots during apt updates
+                apt_hook_content = f"""// SnapGuard: Automatic snapshots during apt updates
 DPkg::Pre-Invoke {{"/usr/bin/python3 {Path(__file__).resolve()} --auto-snapshot-pre-update"}};
 DPkg::Post-Invoke {{"/usr/bin/python3 {Path(__file__).resolve()} --auto-snapshot-post-update"}};
 """
@@ -508,17 +509,17 @@ DPkg::Post-Invoke {{"/usr/bin/python3 {Path(__file__).resolve()} --auto-snapshot
                 
                 # Enable service
                 run_command(["systemctl", "daemon-reload"])
-                run_command(["systemctl", "enable", "--now", "bettersync-auto-snapshot.timer"])
+                run_command(["systemctl", "enable", "--now", "snapguard-auto-snapshot.timer"])
             else:
                 # Disable service and remove files
-                run_command(["systemctl", "disable", "--now", "bettersync-auto-snapshot.timer"])
+                run_command(["systemctl", "disable", "--now", "snapguard-auto-snapshot.timer"])
                 
                 for file in [service_file, timer_file]:
                     if file.exists():
                         file.unlink()
                 
                 # Remove apt hook
-                apt_hook_file = Path("/etc/apt/apt.conf.d/99-bettersync-snapshot")
+                apt_hook_file = Path("/etc/apt/apt.conf.d/99-snapguard-snapshot")
                 if apt_hook_file.exists():
                     apt_hook_file.unlink()
                 

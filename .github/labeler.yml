@@ -1,0 +1,43 @@
+# Label for source code files (e.g... cpp,.py,.js,.rs,.java, etc.)
+"source-code":
+  - "**/*.cpp"
+  - "**/*.py"
+  - "**/*.js"
+  - "**/*.rs"
+  - "**/*.java"
+  - "**/*.go"
+
+# Label for documentation files (e.g... md for Markdown)
+"documentation":
+  - "**/*.md"
+  - "**/*.rst"
+
+# Configuration File Label
+"config":
+  - "**/*.yml"
+  - "**/*.json"
+  - "**/*.toml"
+  - "**/*.ini"
+
+# Test file labels
+"tests":
+  - "**/tests/**/*"
+  - "**/*.test.js"
+  - "**/*.spec.ts"
+  - "**/*.test.py"
+  - "**/*.spec.py"
+
+# Labels for scripts and automation files
+"scripts":
+  - "**/*.sh"
+  - "**/*.bash"
+  - "**/*.zsh"
+  - "**/*.bat"
+
+# Labels for assets and other static files
+"assets":
+  - "**/assets/**/*"
+  - "**/*.png"
+  - "**/*.jpg"
+  - "**/*.svg"
+  - "**/*.gif"
